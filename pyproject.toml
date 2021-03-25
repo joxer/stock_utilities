@@ -5,8 +5,9 @@ description = "This library is a wrapper around the finance libraries in order t
 authors = ["Josario Carioca <6355922-josariooo@users.noreply.gitlab.com>"]
 readme = "README.md"
 [tool.poetry.dependencies]
-python = "^3.5"
+python = "^3.8"
 yfinance = "^0.1.55"
+scipy = "^1.6.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

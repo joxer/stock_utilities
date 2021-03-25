@@ -115,12 +115,14 @@ class YFinanceProvider(DataProxy):
 
     def get_option_chain(self, date: datetime.datetime) -> model.OptionChain:
         option_chain = self.get_ticker().option_chain(date.strftime("%Y-%m-%d"))
-
+        current_stock_price = self.get_last_price()
         calls = [
             model.OptionChainDatum(
                 type=model.OptionType.CALL,
                 strike=row.strike,
                 bid=row.bid,
+                current_stock_price=current_stock_price,
+                option_date=date,
                 last_trade_date=row.lastTradeDate,
                 last_price=row.lastPrice,
                 open_interest=row.openInterest,
@@ -134,6 +136,8 @@ class YFinanceProvider(DataProxy):
                 type=model.OptionType.PUT,
                 strike=row.strike,
                 bid=row.bid,
+                current_stock_price=current_stock_price,
+                option_date=date,
                 last_trade_date=row.lastTradeDate,
                 last_price=row.lastPrice,
                 open_interest=row.openInterest,

@@ -15,3 +15,5 @@ history = data.get_stock_price_history(
 assert len(history), 5
 
 history_option = data.get_next_friday_option_chain()
+
+print(history_option.calls[-1].generate_delta(0))
