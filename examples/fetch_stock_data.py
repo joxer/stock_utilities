@@ -16,4 +16,4 @@ assert len(history), 5
 
 history_option = data.get_next_friday_option_chain()
 
-print(history_option.calls[-1].generate_delta(0))
+print(history_option.calls[-1].delta(), history_option.calls[-1].vega())
