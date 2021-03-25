@@ -99,8 +99,16 @@ class YFinanceProvider(DataProxy):
         stock_history_data = []
         for index, row in history.iterrows():
             utc_data = int(index.replace(tzinfo=datetime.timezone.utc).timestamp())
+
             datum = model.StockHistoryDatum(
-                time=utc_data, open_value=row["Open"], close_value=row["Close"]
+                time=utc_data,
+                open_value=row.Open,
+                close_value=row.Close,
+                high=row.High,
+                low=row.Low,
+                volume=row.Volume,
+                dividends=row.Dividends,
+                stock_splits=row["Stock Splits"],
             )
             stock_history_data.append(datum)
         return stock_history_data
@@ -109,11 +117,29 @@ class YFinanceProvider(DataProxy):
         option_chain = self.get_ticker().option_chain(date.strftime("%Y-%m-%d"))
 
         calls = [
-            model.OptionChainDatum(strike=row.strike, bid=row.bid)
+            model.OptionChainDatum(
+                type=model.OptionType.CALL,
+                strike=row.strike,
+                bid=row.bid,
+                last_trade_date=row.lastTradeDate,
+                last_price=row.lastPrice,
+                open_interest=row.openInterest,
+                implied_volatility=row.impliedVolatility,
+                currency=row.currency,
+            )
             for idx, row in option_chain.calls.iterrows()
         ]
         puts = [
-            model.OptionChainDatum(strike=row.strike, bid=row.bid)
+            model.OptionChainDatum(
+                type=model.OptionType.PUT,
+                strike=row.strike,
+                bid=row.bid,
+                last_trade_date=row.lastTradeDate,
+                last_price=row.lastPrice,
+                open_interest=row.openInterest,
+                implied_volatility=row.impliedVolatility,
+                currency=row.currency,
+            )
             for idx, row in option_chain.puts.iterrows()
         ]
 

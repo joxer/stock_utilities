@@ -1,9 +1,9 @@
 [tool.poetry]
 name = "stock_utilities"
-version = "0.1.0"
-description = ""
+version = "0.1.3"
+description = "This library is a wrapper around the finance libraries in order to give out a data model different from raw pandas and be usable in production services"
 authors = ["Josario Carioca <6355922-josariooo@users.noreply.gitlab.com>"]
-
+readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.5"
 yfinance = "^0.1.55"
