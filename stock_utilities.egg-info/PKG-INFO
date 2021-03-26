@@ -1,13 +1,18 @@
-Metadata-Version: 1.3
+Metadata-Version: 1.2
 Name: stock-utilities
-Version: 0.1.1
+Version: 0.1.3
 Summary: This library is a wrapper around the finance libraries in order to give out a data model different from raw pandas and be usable in production services
-Home-page: https://github.com/joxer/stock_utilities
-Author: Diego Luca Candido
+Home-page: UNKNOWN
+Author: Josario Carioca
 Author-email: 6355922-josariooo@users.noreply.gitlab.com
-License: GPL V3
-Description: This library is a wrapper around the yfinance library in order to give out a data model different from pandas
-             The plan is to add additional data in order to fetch greeks and add them in the model
-             The library is modeled to support multiple data backend and be agnostic
-Platform: *
-Requires-Python: >=3.6,<4.0
+License: UNKNOWN
+Description: # stock_utilities
+        
+        This repo will manage utilities for stock data and stock option
+        The idea is to fetch data from multiple sources and use them from a single point and have a library that is typesafe
+        
+        
+        The used provider are:
+          - YFinance
+Platform: UNKNOWN
+Requires-Python: >=3.7,<4.0

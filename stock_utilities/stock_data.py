@@ -1,11 +1,10 @@
-import abc
 import datetime
 import typing
 
 from . import model, proxy
 
 
-class StockData(abc.ABC):
+class StockData:
     symbol: str
     data_proxy: proxy.DataProxy
 

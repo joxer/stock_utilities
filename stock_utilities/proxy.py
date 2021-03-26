@@ -3,11 +3,14 @@ import datetime
 import typing
 
 import yfinance
-
+import abc
 from . import model
 
 
-class DataProxy:
+class DataProxy(abc.ABC):
+    def __init__(self, symbol: str, *args, **kwargs) -> None:
+        pass
+
     @abc.abstractmethod
     def get_last_price(self) -> float:
         ...
@@ -101,6 +104,7 @@ class YFinanceProvider(DataProxy):
             utc_data = int(index.replace(tzinfo=datetime.timezone.utc).timestamp())
 
             datum = model.StockHistoryDatum(
+                symbol=self.symbol,
                 time=utc_data,
                 open_value=row.Open,
                 close_value=row.Close,
@@ -148,3 +152,45 @@ class YFinanceProvider(DataProxy):
         ]
 
         return model.OptionChain(calls=calls, puts=puts)
+
+    def get_full_option_chain(
+        self
+    ) -> typing.Dict[datetime.datetime, model.OptionChain]:
+        ret = {}
+        current_stock_price = self.get_last_price()
+        for option_expire in self.get_ticker().options:
+            date = datetime.datetime.strptime(option_expire, "%Y/%m/%d")
+            option_chain = self.get_ticker().option_chain(option_expire)
+            calls = [
+                model.OptionChainDatum(
+                    type=model.OptionType.CALL,
+                    strike=row.strike,
+                    bid=row.bid,
+                    current_stock_price=current_stock_price,
+                    option_date=date,
+                    last_trade_date=row.lastTradeDate,
+                    last_price=row.lastPrice,
+                    open_interest=row.openInterest,
+                    implied_volatility=row.impliedVolatility,
+                    currency=row.currency,
+                )
+                for idx, row in option_chain.calls.iterrows()
+            ]
+            puts = [
+                model.OptionChainDatum(
+                    type=model.OptionType.PUT,
+                    strike=row.strike,
+                    bid=row.bid,
+                    current_stock_price=current_stock_price,
+                    option_date=date,
+                    last_trade_date=row.lastTradeDate,
+                    last_price=row.lastPrice,
+                    open_interest=row.openInterest,
+                    implied_volatility=row.impliedVolatility,
+                    currency=row.currency,
+                )
+                for idx, row in option_chain.puts.iterrows()
+            ]
+
+            ret[date] = model.OptionChain(calls=calls, puts=puts)
+        return ret
