@@ -13,7 +13,7 @@ history = data.get_stock_price_history(
     interval=datetime.timedelta(days=1), period=datetime.timedelta(days=5)
 )
 assert len(history), 5
-
+print(data.get_info())
 history_option = data.get_next_friday_option_chain()
 print(history_option.calls[-1])
 print(
@@ -23,13 +23,13 @@ print(
 )
 
 
-combined_providers = stock_utilities.proxy.combine_providers(
-    [stock_utilities.proxy.YFinanceProvider, stock_utilities.proxy.RedditFetcher]
-)
+# combined_providers = stock_utilities.proxy.combine_providers(
+#    [stock_utilities.proxy.YFinanceProvider, stock_utilities.proxy.RedditFetcher]
+# )
 
-reddit = praw.Reddit(client_id="XXX", client_secret="XXX", user_agent="XXX")
-new_client = stock_utilities.stock_data.StockData(
-    "GME", combined_providers, reddit_client=reddit
-)
+# reddit = praw.Reddit(client_id="XXX", client_secret="XXX", user_agent="XXX")
+# new_client = stock_utilities.stock_data.StockData(
+#    "GME", combined_providers, reddit_client=reddit
+# )
 
-print(new_client.get_reddit_threads(["wallstreetbets"]))
+# print(new_client.get_reddit_threads(["wallstreetbets"]))

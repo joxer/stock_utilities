@@ -1,3 +1,4 @@
+import dataclasses
 import datetime
 import enum
 import math
@@ -29,25 +30,26 @@ class StockHistoryDatum(typing.NamedTuple):
     stock_splits: float
 
 
-class StockInformation(typing.NamedTuple):
+@dataclasses.dataclass
+class StockInformation:
     time: int
-    symbol: str
-    logo_url: str
-    long_name: str
-    average_volume_10_days: float
-    average_volume: float
-    market_cap: float
-    float_shares: float
-    implied_shares_outstanding: float
-    short_ratio: float
-    short_percent_float: float
-    shares_short: float
-    shares_short_previous_month_date: float
-    shares_short_prior_month: float
-    shares_percent_shares_out: float
-    shares_outstanding: float
-    shares_help_percent_insiders: float
-    shares_hel_percent_institution: float
+    symbol: typing.Optional[str] = None
+    logo_url: typing.Optional[str] = None
+    long_name: typing.Optional[str] = None
+    average_volume_10_days: typing.Optional[float] = None
+    average_volume: typing.Optional[float] = None
+    market_cap: typing.Optional[float] = None
+    float_shares: typing.Optional[float] = None
+    short_ratio: typing.Optional[float] = None
+    short_percent_float: typing.Optional[float] = None
+    shares_short: typing.Optional[float] = None
+    shares_short_previous_month_date: typing.Optional[float] = None
+    shares_short_prior_month: typing.Optional[float] = None
+    shares_percent_shares_out: typing.Optional[float] = None
+    shares_outstanding: typing.Optional[float] = None
+    shares_implied_outstanding: typing.Optional[float] = None
+    shares_held_percent_insiders: typing.Optional[float] = None
+    shares_held_percent_institution: typing.Optional[float] = None
 
 
 class OptionChainDatum(typing.NamedTuple):

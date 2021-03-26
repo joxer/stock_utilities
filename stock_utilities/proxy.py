@@ -1,5 +1,6 @@
 import abc
 import datetime
+import time
 import typing
 
 import praw
@@ -12,6 +13,10 @@ from . import model
 class DataProxy:
     def __init__(self, symbol: str, *args, **kwargs) -> None:
         pass
+
+    @abc.abstractclassmethod
+    def get_info(self) -> model.StockInformation:
+        ...
 
     @abc.abstractmethod
     def get_last_price(self) -> float:
@@ -68,6 +73,50 @@ class YFinanceProvider(DataProxy):
     def __init__(self, symbol: str, *args, **kwargs):
         self.symbol = symbol
         self.ticker = None
+
+    def get_info(self) -> model.StockInformation:
+        stock_information = model.StockInformation(
+            time=int(time.time()), symbol=self.symbol
+        )
+        ticker_info = self.ticker.info
+        stock_information.average_volume_10_days = ticker_info.get(
+            "averageVolume10days", None
+        )
+        stock_information.average_volume = ticker_info.get("averageVolume", None)
+        stock_information.short_ratio = ticker_info.get("shortRatio", None)
+        stock_information.short_percent_float = ticker_info.get(
+            "shortPercentOfFloat", None
+        )
+        stock_information.shares_short = ticker_info.get("sharesShort", None)
+        stock_information.shares_short_previous_month_date = ticker_info.get(
+            "sharesShortPreviousMonthDate", None
+        )
+        stock_information.shares_short_prior_month = ticker_info.get(
+            "sharesShortPriorMonth", None
+        )
+        stock_information.shares_percent_shares_out = ticker_info.get(
+            "sharesPercentSharesOut", None
+        )
+        stock_information.shares_outstanding = ticker_info.get(
+            "sharesOutStanding", None
+        )
+        stock_information.logo_url = ticker_info.get("logo_url", None)
+        stock_information.market_cap = ticker_info.get("marketCap", None)
+        stock_information.shares_held_percent_insiders = ticker_info.get(
+            "heldPercentInsiders", None
+        )
+        stock_information.shares_held_percent_institution = ticker_info.get(
+            "heldPercentInstitutions", None
+        )
+        stock_information.long_name = ticker_info.get("longName", None)
+        stock_information.shares_implied_outstanding = ticker_info.get(
+            "impliedSharesOutstanding", None
+        )
+        stock_information.shares_outstanding = ticker_info.get(
+            "sharesOutstanding", None
+        )
+        stock_information.float_shares = ticker_info.get("floatShares", None)
+        return stock_information
 
     def get_ticker(self) -> yfinance.Ticker:
         if not self.ticker:

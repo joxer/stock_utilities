@@ -16,6 +16,9 @@ class StockData:
         self.symbol = symbol
         self.data_proxy = data_proxy(symbol, *args, **kwargs)
 
+    def get_info(self) -> model.StockInformation:
+        return self.data_proxy.get_info()
+
     def get_last_price(self) -> float:
         return self.data_proxy.get_last_price()
 
