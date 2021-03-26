@@ -201,26 +201,26 @@ class OptionChainDatum(typing.NamedTuple):
         if self.type == OptionType.CALL:
             if position > 0:
                 return (
-                    (max(0, self.current_stock_price - self.strike) - self.bid)
+                    (max(0, self.current_stock_price - self.strike) - self.last_price)
                     * contract_size
                     * position
                 )
             else:
                 return (
-                    (self.bid - max(0, self.current_stock_price - self.strike))
+                    (self.last_price - max(0, self.current_stock_price - self.strike))
                     * contract_size
                     * position
                 )
         else:
             if position > 0:
                 return (
-                    (max(0, self.strike - self.current_stock_price) - self.bid)
+                    (max(0, self.strike - self.current_stock_price) - self.last_price)
                     * contract_size
                     * position
                 )
             else:
                 return (
-                    (self.bid - max(0, self.strike - self.current_stock_price))
+                    (self.last_price - max(0, self.strike - self.current_stock_price))
                     * contract_size
                     * position
                 )

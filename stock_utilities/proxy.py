@@ -2,12 +2,14 @@ import abc
 import datetime
 import typing
 
+import praw
+
 import yfinance
-import abc
+
 from . import model
 
 
-class DataProxy(abc.ABC):
+class DataProxy:
     def __init__(self, symbol: str, *args, **kwargs) -> None:
         pass
 
@@ -25,12 +27,45 @@ class DataProxy(abc.ABC):
     def get_option_chain(self, date: datetime.datetime) -> model.OptionChain:
         ...
 
+    @abc.abstractmethod
+    def get_full_option_chain(
+        self
+    ) -> typing.Dict[datetime.datetime, model.OptionChain]:
+        ...
+
+    @abc.abstractmethod
+    def get_reddit_threads(
+        self, subreddits: typing.List, time_filter: str = "day", sort: str = "hot"
+    ) -> typing.List[praw.models.Submission]:
+        ...
+
+
+class RedditFetcher(DataProxy):
+    reddit_client: praw.Reddit
+
+    def __init__(
+        self, symbol: str, *args, reddit_client: praw.Reddit = None, **kwargs
+    ) -> None:
+        self.symbol = symbol
+        self.reddit_client = reddit_client
+
+    def get_reddit_threads(
+        self, subreddits: typing.List, time_filter: str = "day", sort: str = "hot"
+    ) -> typing.List[praw.models.Submission]:
+        return [
+            p
+            for subreddit in subreddits
+            for p in self.reddit_client.subreddit(subreddit).search(
+                self.symbol, time_filter=time_filter, sort=sort
+            )
+        ]
+
 
 class YFinanceProvider(DataProxy):
 
     ticker: typing.Optional[yfinance.Ticker]
 
-    def __init__(self, symbol: str):
+    def __init__(self, symbol: str, *args, **kwargs):
         self.symbol = symbol
         self.ticker = None
 
@@ -118,6 +153,7 @@ class YFinanceProvider(DataProxy):
         return stock_history_data
 
     def get_option_chain(self, date: datetime.datetime) -> model.OptionChain:
+        date = date.replace(hour=23, minute=59, second=59)
         option_chain = self.get_ticker().option_chain(date.strftime("%Y-%m-%d"))
         current_stock_price = self.get_last_price()
         calls = [
@@ -160,6 +196,7 @@ class YFinanceProvider(DataProxy):
         current_stock_price = self.get_last_price()
         for option_expire in self.get_ticker().options:
             date = datetime.datetime.strptime(option_expire, "%Y/%m/%d")
+            date = date.replace(hour=23, minute=59, second=59)
             option_chain = self.get_ticker().option_chain(option_expire)
             calls = [
                 model.OptionChainDatum(
@@ -194,3 +231,12 @@ class YFinanceProvider(DataProxy):
 
             ret[date] = model.OptionChain(calls=calls, puts=puts)
         return ret
+
+
+def combine_providers(classes: typing.List[DataProxy]) -> DataProxy:
+    class CombinedProvider(*classes):
+        def __init__(self, *args, **kwargs) -> None:
+            for c in classes:
+                c.__init__(self, *args, **kwargs)
+
+    return CombinedProvider

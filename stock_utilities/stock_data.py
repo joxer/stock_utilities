@@ -1,6 +1,8 @@
 import datetime
 import typing
 
+import praw
+
 from . import model, proxy
 
 
@@ -8,9 +10,11 @@ class StockData:
     symbol: str
     data_proxy: proxy.DataProxy
 
-    def __init__(self, symbol: str, data_proxy: typing.Type[proxy.DataProxy]):
+    def __init__(
+        self, symbol: str, data_proxy: typing.Type[proxy.DataProxy], *args, **kwargs
+    ):
         self.symbol = symbol
-        self.data_proxy = data_proxy(symbol)
+        self.data_proxy = data_proxy(symbol, *args, **kwargs)
 
     def get_last_price(self) -> float:
         return self.data_proxy.get_last_price()
@@ -30,3 +34,8 @@ class StockData:
 
         next_friday = today + next_friday_days
         return self.data_proxy.get_option_chain(next_friday)
+
+    def get_reddit_threads(
+        self, subreddits: typing.List, time_filter: str = "day", sort: str = "hot"
+    ) -> typing.List[praw.models.Submission]:
+        return self.data_proxy.get_reddit_threads(subreddits, time_filter, sort)
