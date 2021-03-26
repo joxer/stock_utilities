@@ -2,19 +2,17 @@ import datetime
 import praw
 import stock_utilities
 
-data = stock_utilities.stock_data.StockData(
-    "GME", stock_utilities.proxy.YFinanceProvider
+data_proxy = stock_utilities.stock_data.StockData(
+    "GME", stock_utilities.proxy.YFinanceProvider, proxy="localhost:1111"
 )
-print(data.get_last_price())
-data = stock_utilities.stock_data.StockData(
-    "GME", stock_utilities.proxy.YFinanceProvider
-)
-history = data.get_stock_price_history(
+print(data_proxy.get_last_price())
+
+history = data_proxy.get_stock_price_history(
     interval=datetime.timedelta(days=1), period=datetime.timedelta(days=5)
 )
 assert len(history), 5
-print(data.get_info())
-history_option = data.get_next_friday_option_chain()
+print(data_proxy.get_info())
+history_option = data_proxy.get_next_friday_option_chain()
 print(history_option.calls[-1])
 print(
     history_option.calls[-1].delta(),

@@ -69,10 +69,12 @@ class RedditFetcher(DataProxy):
 class YFinanceProvider(DataProxy):
 
     ticker: typing.Optional[yfinance.Ticker]
+    proxy: typing.Optional[str]
 
-    def __init__(self, symbol: str, *args, **kwargs):
+    def __init__(self, symbol: str, *args, proxy: str = None, **kwargs):
         self.symbol = symbol
         self.ticker = None
+        self.proxy = proxy
 
     def get_info(self) -> model.StockInformation:
         stock_information = model.StockInformation(
@@ -182,6 +184,7 @@ class YFinanceProvider(DataProxy):
         history = self.get_ticker().history(
             period=self.timedelta_period_to_str(period),
             interval=self.timedelta_interval_to_str(interval),
+            proxy=self.proxy,
         )
         stock_history_data = []
         for index, row in history.iterrows():
@@ -203,7 +206,9 @@ class YFinanceProvider(DataProxy):
 
     def get_option_chain(self, date: datetime.datetime) -> model.OptionChain:
         date = date.replace(hour=23, minute=59, second=59)
-        option_chain = self.get_ticker().option_chain(date.strftime("%Y-%m-%d"))
+        option_chain = self.get_ticker().option_chain(
+            date.strftime("%Y-%m-%d"), proxy=self.proxy
+        )
         current_stock_price = self.get_last_price()
         calls = [
             model.OptionChainDatum(
@@ -246,7 +251,9 @@ class YFinanceProvider(DataProxy):
         for option_expire in self.get_ticker().options:
             date = datetime.datetime.strptime(option_expire, "%Y/%m/%d")
             date = date.replace(hour=23, minute=59, second=59)
-            option_chain = self.get_ticker().option_chain(option_expire)
+            option_chain = self.get_ticker().option_chain(
+                option_expire, proxy=self.proxy
+            )
             calls = [
                 model.OptionChainDatum(
                     type=model.OptionType.CALL,
