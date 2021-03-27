@@ -30,13 +30,8 @@ class StockData:
     def get_option_chain(self, date: datetime.datetime) -> model.OptionChain:
         return self.data_proxy.get_option_chain(date)
 
-    def get_next_friday_option_chain(self) -> model.OptionChain:
-
-        today = datetime.datetime.today()
-        next_friday_days = datetime.timedelta(days=(4 - today.weekday()) % 7)
-
-        next_friday = today + next_friday_days
-        return self.data_proxy.get_option_chain(next_friday)
+    def get_next_option_chain(self) -> model.OptionChain:
+        return self.data_proxy.get_option_chain()
 
     def get_reddit_threads(
         self, subreddits: typing.List, time_filter: str = "day", sort: str = "hot"

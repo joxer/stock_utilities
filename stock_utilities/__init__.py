@@ -1,2 +1,2 @@
-__version__ = "0.1.1"
-from . import model, stock_data, proxy
+__version__ = "0.1.5"
+from . import model, stock_data, proxy, correlation

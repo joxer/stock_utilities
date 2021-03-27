@@ -188,7 +188,7 @@ class YFinanceProvider(DataProxy):
         )
         stock_history_data = []
         for index, row in history.iterrows():
-            utc_data = int(index.replace(tzinfo=datetime.timezone.utc).timestamp())
+            utc_data = index.replace(tzinfo=datetime.timezone.utc)
 
             datum = model.StockHistoryDatum(
                 symbol=self.symbol,
@@ -204,12 +204,24 @@ class YFinanceProvider(DataProxy):
             stock_history_data.append(datum)
         return stock_history_data
 
-    def get_option_chain(self, date: datetime.datetime) -> model.OptionChain:
-        date = date.replace(hour=23, minute=59, second=59)
-        option_chain = self.get_ticker().option_chain(
-            date.strftime("%Y-%m-%d"), proxy=self.proxy
-        )
-        current_stock_price = self.get_last_price()
+    def get_option_chain(
+        self, date: typing.Optional[datetime.datetime] = None
+    ) -> model.OptionChain:
+        if date:
+            date = date.replace(hour=23, minute=59, second=59)
+            option_chain = self.get_ticker().option_chain(
+                date.strftime("%Y-%m-%d"), proxy=self.proxy
+            )
+            current_stock_price = self.get_last_price()
+        else:
+            option_chains_date = self.get_ticker().options
+
+            option_chain = self.get_ticker().option_chain(
+                option_chains_date[0], proxy=self.proxy
+            )
+            current_stock_price = self.get_last_price()
+            date = datetime.datetime.strptime(option_chains_date[0], "%Y-%m-%d")
+            date = date.replace(hour=23, minute=59, second=59)
         calls = [
             model.OptionChainDatum(
                 type=model.OptionType.CALL,
@@ -249,7 +261,7 @@ class YFinanceProvider(DataProxy):
         ret = {}
         current_stock_price = self.get_last_price()
         for option_expire in self.get_ticker().options:
-            date = datetime.datetime.strptime(option_expire, "%Y/%m/%d")
+            date = datetime.datetime.strptime(option_expire, "%Y-%m-%d")
             date = date.replace(hour=23, minute=59, second=59)
             option_chain = self.get_ticker().option_chain(
                 option_expire, proxy=self.proxy

@@ -3,22 +3,21 @@ import praw
 import stock_utilities
 
 data_proxy = stock_utilities.stock_data.StockData(
-    "GME", stock_utilities.proxy.YFinanceProvider, proxy="localhost:1111"
+    "GME", stock_utilities.proxy.YFinanceProvider, proxy="127.0.0.1:9080"
 )
-print(data_proxy.get_last_price())
+# print(data_proxy.get_last_price())
 
-history = data_proxy.get_stock_price_history(
-    interval=datetime.timedelta(days=1), period=datetime.timedelta(days=5)
+h1 = data_proxy.get_stock_price_history(
+    interval=datetime.timedelta(minutes=30), period=datetime.timedelta(days=30)
 )
-assert len(history), 5
-print(data_proxy.get_info())
-history_option = data_proxy.get_next_friday_option_chain()
-print(history_option.calls[-1])
-print(
-    history_option.calls[-1].delta(),
-    history_option.calls[-1].gamma(),
-    history_option.calls[-1].vega(),
-)
+# print(data_proxy.get_info())
+history_option = data_proxy.get_next_option_chain()
+# print(history_option.calls[-1])
+# print(
+#    history_option.calls[-1].delta(),
+#    history_option.calls[-1].gamma(),
+#    history_option.calls[-1].vega(),
+# )
 
 
 # combined_providers = stock_utilities.proxy.combine_providers(
@@ -31,3 +30,14 @@ print(
 # )
 
 # print(new_client.get_reddit_threads(["wallstreetbets"]))
+
+
+data_proxy = stock_utilities.stock_data.StockData(
+    "RKT", stock_utilities.proxy.YFinanceProvider, proxy="127.0.0.1:9080"
+)
+
+h2 = data_proxy.get_stock_price_history(
+    interval=datetime.timedelta(minutes=30), period=datetime.timedelta(days=30)
+)
+
+print(stock_utilities.correlation.correlation_history(h1, h2))

@@ -18,8 +18,13 @@ class OptionType(enum.Enum):
     PUT = 2
 
 
+class CorrelationHistoryDatum(typing.NamedTuple):
+    time: datetime.datetime
+    value: float
+
+
 class StockHistoryDatum(typing.NamedTuple):
-    time: int
+    time: datetime.datetime
     symbol: str
     open_value: float
     close_value: float
