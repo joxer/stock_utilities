@@ -1,10 +1,9 @@
 Metadata-Version: 1.2
 Name: stock-utilities
-Version: 0.1.3
+Version: 0.1.4
 Summary: This library is a wrapper around the finance libraries in order to give out a data model different from raw pandas and be usable in production services
-Home-page: UNKNOWN
-Author: Josario Carioca
-Author-email: 6355922-josariooo@users.noreply.gitlab.com
+Home-page: https://github.com/joxer/stock_utilities
+Author: Diego Luca Candido
 License: UNKNOWN
 Description: # stock_utilities
         
@@ -14,5 +13,49 @@ Description: # stock_utilities
         
         The used provider are:
           - YFinance
+        
+        ## Example
+        
+        ```
+        import datetime
+        import praw
+        import stock_utilities
+        
+        data = stock_utilities.stock_data.StockData(
+            "GME", stock_utilities.proxy.YFinanceProvider
+        )
+        print(data.get_last_price())
+        data = stock_utilities.stock_data.StockData(
+            "GME", stock_utilities.proxy.YFinanceProvider
+        )
+        history = data.get_stock_price_history(
+            interval=datetime.timedelta(days=1), period=datetime.timedelta(days=5)
+        )
+        assert len(history), 5
+        
+        history_option = data.get_next_friday_option_chain()
+        print(history_option.calls[-1])
+        print(
+            history_option.calls[-1].delta(),
+            history_option.calls[-1].gamma(),
+            history_option.calls[-1].vega(),
+        )
+        
+        
+        combined_providers = stock_utilities.proxy.combine_providers(
+            [stock_utilities.proxy.YFinanceProvider, stock_utilities.proxy.RedditFetcher]
+        )
+        
+        reddit = praw.Reddit(
+           client_id="XXX",
+           client_secret="XXX",
+           user_agent="XXX",
+        )
+        new_client = stock_utilities.stock_data.StockData(
+           "GME", combined_providers, reddit_client=reddit
+        )
+        
+        print(new_client.get_reddit_threads(["wallstreetbets"]))
+        ```
 Platform: UNKNOWN
 Requires-Python: >=3.7,<4.0
