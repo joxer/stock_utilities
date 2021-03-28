@@ -80,7 +80,7 @@ class YFinanceProvider(DataProxy):
         stock_information = model.StockInformation(
             time=int(time.time()), symbol=self.symbol
         )
-        ticker_info = self.ticker.info
+        ticker_info = self.get_ticker().info
         stock_information.average_volume_10_days = ticker_info.get(
             "averageVolume10days", None
         )
