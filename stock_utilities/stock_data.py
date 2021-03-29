@@ -33,6 +33,9 @@ class StockData:
     def get_next_option_chain(self) -> model.OptionChain:
         return self.data_proxy.get_option_chain()
 
+    def get_full_option_chain(self) -> typing.Dict[datetime.datetime, model.OptionChain]:
+        return self.data_proxy.get_full_option_chain()
+
     def get_reddit_threads(
         self, subreddits: typing.List, time_filter: str = "day", sort: str = "hot"
     ) -> typing.List[praw.models.Submission]:
