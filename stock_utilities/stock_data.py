@@ -31,9 +31,11 @@ class StockData:
         return self.data_proxy.get_option_chain(date)
 
     def get_next_option_chain(self) -> model.OptionChain:
-        return self.data_proxy.get_option_chain()
+        return self.data_proxy.get_option_chain(date=None)
 
-    def get_full_option_chain(self) -> typing.Dict[datetime.datetime, model.OptionChain]:
+    def get_full_option_chain(
+        self
+    ) -> typing.Dict[datetime.datetime, model.OptionChain]:
         return self.data_proxy.get_full_option_chain()
 
     def get_reddit_threads(

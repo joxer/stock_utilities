@@ -26,6 +26,7 @@ class CorrelationHistoryDatum(typing.NamedTuple):
 class StockHistoryDatum(typing.NamedTuple):
     time: datetime.datetime
     symbol: str
+    currency: str
     open_value: float
     close_value: float
     high: float

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "stock_utilities"
-version = "0.1.6"
+version = "0.1.7"
 description = "This library is a wrapper around the finance libraries in order to give out a data model different from raw pandas and be usable in production services"
 authors = ["Diego Luca Candido"]
 readme = "README.md"

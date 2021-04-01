@@ -3,13 +3,14 @@ import praw
 import stock_utilities
 
 data_proxy = stock_utilities.stock_data.StockData(
-    "GME", stock_utilities.proxy.YFinanceProvider, proxy="127.0.0.1:9080"
+    "GME", stock_utilities.proxy.YFinanceProvider  # , proxy="127.0.0.1:9080"
 )
 # print(data_proxy.get_last_price())
 
 h1 = data_proxy.get_stock_price_history(
     interval=datetime.timedelta(minutes=30), period=datetime.timedelta(days=30)
 )
+print(h1)
 # print(data_proxy.get_info())
 history_option = data_proxy.get_next_option_chain()
 # print(history_option.calls[-1])
@@ -33,11 +34,11 @@ history_option = data_proxy.get_next_option_chain()
 
 
 data_proxy = stock_utilities.stock_data.StockData(
-    "RKT", stock_utilities.proxy.YFinanceProvider, proxy="127.0.0.1:9080"
+    "RKT", stock_utilities.proxy.YFinanceProvider  # , proxy="127.0.0.1:9080"
 )
 
 h2 = data_proxy.get_stock_price_history(
     interval=datetime.timedelta(minutes=30), period=datetime.timedelta(days=30)
 )
 
-print(stock_utilities.correlation.correlation_history(h1, h2))
+# print(stock_utilities.correlation.correlation_history(h1, h2))

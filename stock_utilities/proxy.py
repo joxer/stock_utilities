@@ -186,12 +186,18 @@ class YFinanceProvider(DataProxy):
             interval=self.timedelta_interval_to_str(interval),
             proxy=self.proxy,
         )
+
+        earnings = self.get_ticker().get_earnings(proxy=self.proxy, as_dict=True)
+
+        currency = earnings["financialCurrency"]
+
         stock_history_data = []
         for index, row in history.iterrows():
             utc_data = index.replace(tzinfo=datetime.timezone.utc)
 
             datum = model.StockHistoryDatum(
                 symbol=self.symbol,
+                currency=currency,
                 time=utc_data,
                 open_value=row.Open,
                 close_value=row.Close,

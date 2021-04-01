@@ -1,6 +1,6 @@
 Metadata-Version: 1.2
 Name: stock-utilities
-Version: 0.1.6
+Version: 0.1.7
 Summary: This library is a wrapper around the finance libraries in order to give out a data model different from raw pandas and be usable in production services
 Home-page: https://github.com/joxer/stock_utilities
 Author: Diego Luca Candido
