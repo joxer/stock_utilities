@@ -10,7 +10,7 @@ data_proxy = stock_utilities.stock_data.StockData(
 h1 = data_proxy.get_stock_price_history(
     interval=datetime.timedelta(minutes=30), period=datetime.timedelta(days=30)
 )
-print(h1)
+# print(h1)
 # print(data_proxy.get_info())
 history_option = data_proxy.get_next_option_chain()
 # print(history_option.calls[-1])
@@ -19,8 +19,8 @@ history_option = data_proxy.get_next_option_chain()
 #    history_option.calls[-1].gamma(),
 #    history_option.calls[-1].vega(),
 # )
-
-
+print(history_option.calls[0])
+#
 # combined_providers = stock_utilities.proxy.combine_providers(
 #    [stock_utilities.proxy.YFinanceProvider, stock_utilities.proxy.RedditFetcher]
 # )

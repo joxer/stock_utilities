@@ -2,7 +2,7 @@ import abc
 import datetime
 import time
 import typing
-
+import pytz
 import praw
 
 import yfinance
@@ -193,12 +193,13 @@ class YFinanceProvider(DataProxy):
 
         stock_history_data = []
         for index, row in history.iterrows():
-            utc_data = index.replace(tzinfo=datetime.timezone.utc)
+
+            index = index.astimezone(pytz.timezone("UTC"))
 
             datum = model.StockHistoryDatum(
                 symbol=self.symbol,
                 currency=currency,
-                time=utc_data,
+                time=index,
                 open_value=row.Open,
                 close_value=row.Close,
                 high=row.High,
@@ -214,7 +215,9 @@ class YFinanceProvider(DataProxy):
         self, date: typing.Optional[datetime.datetime] = None
     ) -> model.OptionChain:
         if date:
-            date = date.replace(hour=23, minute=59, second=59)
+            date = date.replace(
+                hour=23, minute=59, second=59, tzinfo=pytz.timezone("UTC")
+            )
             option_chain = self.get_ticker().option_chain(
                 date.strftime("%Y-%m-%d"), proxy=self.proxy
             )
@@ -227,22 +230,30 @@ class YFinanceProvider(DataProxy):
             )
             current_stock_price = self.get_last_price()
             date = datetime.datetime.strptime(option_chains_date[0], "%Y-%m-%d")
-            date = date.replace(hour=23, minute=59, second=59)
-        calls = [
-            model.OptionChainDatum(
-                type=model.OptionType.CALL,
-                strike=row.strike,
-                bid=row.bid,
-                current_stock_price=current_stock_price,
-                option_date=date,
-                last_trade_date=row.lastTradeDate,
-                last_price=row.lastPrice,
-                open_interest=row.openInterest,
-                implied_volatility=row.impliedVolatility,
-                currency=row.currency,
+            date = date.replace(
+                hour=23, minute=59, second=59, tzinfo=pytz.timezone("UTC")
             )
-            for idx, row in option_chain.calls.iterrows()
-        ]
+
+        calls = []
+        for idx, row in option_chain.calls.iterrows():
+
+            calls.append(
+                model.OptionChainDatum(
+                    type=model.OptionType.CALL,
+                    strike=row.strike,
+                    bid=row.bid,
+                    current_stock_price=current_stock_price,
+                    option_date=date,
+                    last_trade_date=row.lastTradeDate.to_pydatetime().replace(
+                        tzinfo=pytz.timezone("UTC")
+                    ),
+                    last_price=row.lastPrice,
+                    open_interest=row.openInterest,
+                    implied_volatility=row.impliedVolatility,
+                    currency=row.currency,
+                )
+            )
+
         puts = [
             model.OptionChainDatum(
                 type=model.OptionType.PUT,
