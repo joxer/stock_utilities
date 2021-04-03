@@ -60,6 +60,7 @@ class StockInformation:
 
 class OptionChainDatum(typing.NamedTuple):
     type: OptionType
+    option_symbol: str
     strike: float
     current_stock_price: float
     bid: float

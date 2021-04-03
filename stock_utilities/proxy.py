@@ -234,34 +234,36 @@ class YFinanceProvider(DataProxy):
                 hour=23, minute=59, second=59, tzinfo=pytz.timezone("UTC")
             )
 
-        calls = []
-        for idx, row in option_chain.calls.iterrows():
-
-            calls.append(
-                model.OptionChainDatum(
-                    type=model.OptionType.CALL,
-                    strike=row.strike,
-                    bid=row.bid,
-                    current_stock_price=current_stock_price,
-                    option_date=date,
-                    last_trade_date=row.lastTradeDate.to_pydatetime().replace(
-                        tzinfo=pytz.timezone("UTC")
-                    ),
-                    last_price=row.lastPrice,
-                    open_interest=row.openInterest,
-                    implied_volatility=row.impliedVolatility,
-                    currency=row.currency,
-                )
-            )
-
-        puts = [
+        calls = [
             model.OptionChainDatum(
-                type=model.OptionType.PUT,
+                type=model.OptionType.CALL,
+                option_symbol=row.contractSymbol,
                 strike=row.strike,
                 bid=row.bid,
                 current_stock_price=current_stock_price,
                 option_date=date,
-                last_trade_date=row.lastTradeDate,
+                last_trade_date=row.lastTradeDate.to_pydatetime().replace(
+                    tzinfo=pytz.timezone("UTC")
+                ),
+                last_price=row.lastPrice,
+                open_interest=row.openInterest,
+                implied_volatility=row.impliedVolatility,
+                currency=row.currency,
+            )
+            for idx, row in option_chain.calls.iterrows()
+        ]
+
+        puts = [
+            model.OptionChainDatum(
+                type=model.OptionType.PUT,
+                option_symbol=row.contractSymbol,
+                strike=row.strike,
+                bid=row.bid,
+                current_stock_price=current_stock_price,
+                option_date=date,
+                last_trade_date=row.lastTradeDate.to_pydatetime().replace(
+                    tzinfo=pytz.timezone("UTC")
+                ),
                 last_price=row.lastPrice,
                 open_interest=row.openInterest,
                 implied_volatility=row.impliedVolatility,
