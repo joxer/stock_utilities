@@ -288,11 +288,14 @@ class YFinanceProvider(DataProxy):
             calls = [
                 model.OptionChainDatum(
                     type=model.OptionType.CALL,
+                    option_symbol=row.contractSymbol,
                     strike=row.strike,
                     bid=row.bid,
                     current_stock_price=current_stock_price,
                     option_date=date,
-                    last_trade_date=row.lastTradeDate,
+                    last_trade_date=row.lastTradeDate.to_pydatetime().replace(
+                        tzinfo=pytz.timezone("UTC")
+                    ),
                     last_price=row.lastPrice,
                     open_interest=row.openInterest,
                     implied_volatility=row.impliedVolatility,
@@ -303,11 +306,14 @@ class YFinanceProvider(DataProxy):
             puts = [
                 model.OptionChainDatum(
                     type=model.OptionType.PUT,
+                    option_symbol=row.contractSymbol,
                     strike=row.strike,
                     bid=row.bid,
                     current_stock_price=current_stock_price,
                     option_date=date,
-                    last_trade_date=row.lastTradeDate,
+                    last_trade_date=row.lastTradeDate.to_pydatetime().replace(
+                        tzinfo=pytz.timezone("UTC")
+                    ),
                     last_price=row.lastPrice,
                     open_interest=row.openInterest,
                     implied_volatility=row.impliedVolatility,
