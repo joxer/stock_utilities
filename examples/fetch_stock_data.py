@@ -20,6 +20,8 @@ history_option = data_proxy.get_next_option_chain()
 #    history_option.calls[-1].vega(),
 # )
 print(history_option.calls[0])
+print(history_option.calls[0].delta())
+print(history_option.calls[-1].theta())
 #
 # combined_providers = stock_utilities.proxy.combine_providers(
 #    [stock_utilities.proxy.YFinanceProvider, stock_utilities.proxy.RedditFetcher]

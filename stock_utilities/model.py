@@ -3,14 +3,21 @@ import datetime
 import enum
 import math
 import typing
+import pytz
 
 import numpy as np
 import scipy.stats as scipy_stats
 
-import py_vollib.ref_python.black.greeks.analytical as vollib_a
+import py_vollib.black_scholes.greeks.analytical as vollib_a
 
 from . import exceptions
 
+class NamedTupleMetaMultiple(typing.NamedTupleMeta):
+
+    def __new__(cls, typename, bases, ns):
+        cls_obj = super().__new__(cls, typename+'_nm_base', bases, ns)
+        bases = bases + (cls_obj,)
+        return type(typename, bases, {})
 
 class OptionType(enum.Enum):
     UNDEFINED = 0
@@ -57,8 +64,172 @@ class StockInformation:
     shares_held_percent_insiders: typing.Optional[float] = None
     shares_held_percent_institution: typing.Optional[float] = None
 
+class OptionGreeks():
 
-class OptionChainDatum(typing.NamedTuple):
+    def delta(self, risk: float = 0.0) -> float:
+        if self.get_type() == OptionType.UNDEFINED:
+            raise exceptions.OptionTypeIsUndefined()
+        expire = (self.get_option_date() - datetime.datetime.now(tz=pytz.timezone("UTC"))).total_seconds() / (
+            365 * 24 * 60.0
+        )
+
+        if self.get_type() == OptionType.CALL:
+            return vollib_a.delta(
+                "c",
+                self.get_current_stock_price(),
+                self.get_strike(),
+                expire,
+                risk,
+                self.get_implied_volatility(),
+            )
+        else:
+            return vollib_a.delta(
+                "p",
+                self.get_current_stock_price(),
+                self.get_strike(),
+                expire,
+                risk,
+                self.get_implied_volatility(),
+            )
+
+    def gamma(self, risk: float = 0) -> float:
+        if self.get_type() == OptionType.UNDEFINED:
+            raise exceptions.OptionTypeIsUndefined()
+        expire = (self.get_option_date() - datetime.datetime.now(tz=pytz.timezone("UTC"))).total_seconds() / (
+            365 * 24 * 60.0
+        )
+
+        if self.get_type() == OptionType.CALL:
+            return vollib_a.gamma(
+                "c",
+                self.get_current_stock_price(),
+                self.get_strike(),
+                expire,
+                risk,
+                self.get_implied_volatility(),
+            )
+        else:
+            return vollib_a.gamma(
+                "p",
+                self.get_current_stock_price(),
+                self.get_strike(),
+                expire,
+                risk,
+                self.get_implied_volatility(),
+            )
+
+    def theta(self, risk: float = 0) -> float:
+        if self.get_type() == OptionType.UNDEFINED:
+            raise exceptions.OptionTypeIsUndefined()
+        expire = (self.get_option_date() - datetime.datetime.now(tz=pytz.timezone("UTC"))).total_seconds() / (
+            365 * 24 * 60.0
+        )
+
+        if self.get_type() == OptionType.CALL:
+            return vollib_a.theta(
+                "c",
+                self.get_current_stock_price(),
+                self.get_strike(),
+                expire,
+                risk,
+                self.get_implied_volatility(),
+            )
+        else:
+            return vollib_a.theta(
+                "p",
+                self.get_current_stock_price(),
+                self.get_strike(),
+                expire,
+                risk,
+                self.get_implied_volatility(),
+            )
+
+    def rho(self, risk: float = 0) -> float:
+        if self.get_type() == OptionType.UNDEFINED:
+            raise exceptions.OptionTypeIsUndefined()
+        expire = (self.get_option_date() - datetime.datetime.now(tz=pytz.timezone("UTC"))).total_seconds() / (
+            365 * 24 * 60.0
+        )
+
+        if self.get_type() == OptionType.CALL:
+            return vollib_a.rho(
+                "c",
+                self.get_current_stock_price(),
+                self.get_strike(),
+                expire,
+                risk,
+                self.get_implied_volatility(),
+            )
+        else:
+            return vollib_a.rho(
+                "p",
+                self.get_current_stock_price(),
+                self.get_strike(),
+                expire,
+                risk,
+                self.get_implied_volatility(),
+            )
+
+    def vega(self, risk: float = 0) -> float:
+        if self.get_type() == OptionType.UNDEFINED:
+            raise exceptions.OptionTypeIsUndefined()
+        expire = (self.get_option_date() - datetime.datetime.now(tz=pytz.timezone("UTC"))).total_seconds() / (
+            365 * 24 * 60.0
+        )
+
+        if self.get_type() == OptionType.CALL:
+            return vollib_a.vega(
+                "c",
+                self.get_current_stock_price(),
+                self.get_strike(),
+                expire,
+                risk,
+                self.get_implied_volatility(),
+            )
+        else:
+            return vollib_a.vega(
+                "p",
+                self.get_current_stock_price(),
+                self.get_strike(),
+                expire,
+                risk,
+                self.get_implied_volatility(),
+            )
+
+    def payoff(self, contract_size: int = 100, position: int = 1) -> float:
+        # negative position means short
+
+        if self.get_type() == OptionType.UNDEFINED:
+            raise exceptions.OptionTypeIsUndefined()
+
+        if self.get_type() == OptionType.CALL:
+            if position > 0:
+                return (
+                    (max(0, self.get_current_stock_price() - self.get_strike()) - self.get_last_price())
+                    * contract_size
+                    * position
+                )
+            else:
+                return (
+                    (self.get_last_price() - max(0, self.get_current_stock_price() - self.get_strike()))
+                    * contract_size
+                    * position
+                )
+        else:
+            if position > 0:
+                return (
+                    (max(0, self.get_strike() - self.get_current_stock_price()) - self.get_last_price())
+                    * contract_size
+                    * position
+                )
+            else:
+                return (
+                    (self.get_last_price() - max(0, self.get_strike() - self.get_current_stock_price()))
+                    * contract_size
+                    * position
+                )
+
+class OptionChainDatum(OptionGreeks,metaclass=NamedTupleMetaMultiple):
     type: OptionType
     option_symbol: str
     strike: float
@@ -70,169 +241,21 @@ class OptionChainDatum(typing.NamedTuple):
     implied_volatility: float
     option_date: datetime.datetime
     last_trade_date: datetime.datetime
+    volume: float
 
-    def delta(self, risk: float = 0.0) -> float:
-        if self.type == OptionType.UNDEFINED:
-            raise exceptions.OptionTypeIsUndefined()
-        expire = (self.option_date - datetime.datetime.now()).total_seconds() / (
-            365 * 24 * 60.0
-        )
+    def get_last_price(self) -> float:
+        return self.last_price
+    def get_strike(self) -> float:
+        return self.strike
+    def get_current_stock_price(self) -> float:
+        return self.current_stock_price
+    def get_type(self) -> OptionType:
+        return self.type
+    def get_implied_volatility(self) -> float:
+        return self.implied_volatility
+    def get_option_date(self) -> datetime.datetime:
+        return self.option_date
 
-        if self.type == OptionType.CALL:
-            return vollib_a.delta(
-                "c",
-                self.current_stock_price,
-                self.strike,
-                expire,
-                risk,
-                self.implied_volatility,
-            )
-        else:
-            return vollib_a.delta(
-                "p",
-                self.current_stock_price,
-                self.strike,
-                expire,
-                risk,
-                self.implied_volatility,
-            )
-
-    def gamma(self, risk: float = 0) -> float:
-        if self.type == OptionType.UNDEFINED:
-            raise exceptions.OptionTypeIsUndefined()
-        expire = (self.option_date - datetime.datetime.now()).total_seconds() / (
-            365 * 24 * 60.0
-        )
-
-        if self.type == OptionType.CALL:
-            return vollib_a.gamma(
-                "c",
-                self.current_stock_price,
-                self.strike,
-                expire,
-                risk,
-                self.implied_volatility,
-            )
-        else:
-            return vollib_a.gamma(
-                "p",
-                self.current_stock_price,
-                self.strike,
-                expire,
-                risk,
-                self.implied_volatility,
-            )
-
-    def tetha(self, risk: float = 0) -> float:
-        if self.type == OptionType.UNDEFINED:
-            raise exceptions.OptionTypeIsUndefined()
-        expire = (self.option_date - datetime.datetime.now()).total_seconds() / (
-            365 * 24 * 60.0
-        )
-
-        if self.type == OptionType.CALL:
-            return vollib_a.tetha(
-                "c",
-                self.current_stock_price,
-                self.strike,
-                expire,
-                risk,
-                self.implied_volatility,
-            )
-        else:
-            return vollib_a.tetha(
-                "p",
-                self.current_stock_price,
-                self.strike,
-                expire,
-                risk,
-                self.implied_volatility,
-            )
-
-    def rho(self, risk: float = 0) -> float:
-        if self.type == OptionType.UNDEFINED:
-            raise exceptions.OptionTypeIsUndefined()
-        expire = (self.option_date - datetime.datetime.now()).total_seconds() / (
-            365 * 24 * 60.0
-        )
-
-        if self.type == OptionType.CALL:
-            return vollib_a.rho(
-                "c",
-                self.current_stock_price,
-                self.strike,
-                expire,
-                risk,
-                self.implied_volatility,
-            )
-        else:
-            return vollib_a.rho(
-                "p",
-                self.current_stock_price,
-                self.strike,
-                expire,
-                risk,
-                self.implied_volatility,
-            )
-
-    def vega(self, risk: float = 0) -> float:
-        if self.type == OptionType.UNDEFINED:
-            raise exceptions.OptionTypeIsUndefined()
-        expire = (self.option_date - datetime.datetime.now()).total_seconds() / (
-            365 * 24 * 60.0
-        )
-
-        if self.type == OptionType.CALL:
-            return vollib_a.vega(
-                "c",
-                self.current_stock_price,
-                self.strike,
-                expire,
-                risk,
-                self.implied_volatility,
-            )
-        else:
-            return vollib_a.vega(
-                "p",
-                self.current_stock_price,
-                self.strike,
-                expire,
-                risk,
-                self.implied_volatility,
-            )
-
-    def payoff(self, contract_size: int = 100, position: int = 1) -> float:
-        # negative position means short
-
-        if self.type == OptionType.UNDEFINED:
-            raise exceptions.OptionTypeIsUndefined()
-
-        if self.type == OptionType.CALL:
-            if position > 0:
-                return (
-                    (max(0, self.current_stock_price - self.strike) - self.last_price)
-                    * contract_size
-                    * position
-                )
-            else:
-                return (
-                    (self.last_price - max(0, self.current_stock_price - self.strike))
-                    * contract_size
-                    * position
-                )
-        else:
-            if position > 0:
-                return (
-                    (max(0, self.strike - self.current_stock_price) - self.last_price)
-                    * contract_size
-                    * position
-                )
-            else:
-                return (
-                    (self.last_price - max(0, self.strike - self.current_stock_price))
-                    * contract_size
-                    * position
-                )
 
 
 class OptionChain(typing.NamedTuple):

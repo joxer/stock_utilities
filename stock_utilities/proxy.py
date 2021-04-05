@@ -249,6 +249,7 @@ class YFinanceProvider(DataProxy):
                 open_interest=row.openInterest,
                 implied_volatility=row.impliedVolatility,
                 currency=row.currency,
+                volume=row.volume,
             )
             for idx, row in option_chain.calls.iterrows()
         ]
@@ -268,6 +269,7 @@ class YFinanceProvider(DataProxy):
                 open_interest=row.openInterest,
                 implied_volatility=row.impliedVolatility,
                 currency=row.currency,
+                volume=row.volume
             )
             for idx, row in option_chain.puts.iterrows()
         ]
@@ -281,7 +283,7 @@ class YFinanceProvider(DataProxy):
         current_stock_price = self.get_last_price()
         for option_expire in self.get_ticker().options:
             date = datetime.datetime.strptime(option_expire, "%Y-%m-%d")
-            date = date.replace(hour=23, minute=59, second=59)
+            date = date.replace(hour=23, minute=59, second=59,tzinfo=pytz.timezone("UTC"))
             option_chain = self.get_ticker().option_chain(
                 option_expire, proxy=self.proxy
             )
@@ -300,6 +302,7 @@ class YFinanceProvider(DataProxy):
                     open_interest=row.openInterest,
                     implied_volatility=row.impliedVolatility,
                     currency=row.currency,
+                    volume=row.volume,
                 )
                 for idx, row in option_chain.calls.iterrows()
             ]
@@ -318,6 +321,7 @@ class YFinanceProvider(DataProxy):
                     open_interest=row.openInterest,
                     implied_volatility=row.impliedVolatility,
                     currency=row.currency,
+                    volume=row.volume,
                 )
                 for idx, row in option_chain.puts.iterrows()
             ]
