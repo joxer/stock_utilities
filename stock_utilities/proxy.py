@@ -236,7 +236,7 @@ class YFinanceProvider(DataProxy):
 
         calls = [
             model.OptionChainDatum(
-                type=model.OptionType.CALL,
+                option_type=model.OptionType.CALL,
                 option_symbol=row.contractSymbol,
                 strike=row.strike,
                 bid=row.bid,
@@ -256,7 +256,7 @@ class YFinanceProvider(DataProxy):
 
         puts = [
             model.OptionChainDatum(
-                type=model.OptionType.PUT,
+                option_type=model.OptionType.PUT,
                 option_symbol=row.contractSymbol,
                 strike=row.strike,
                 bid=row.bid,
@@ -289,7 +289,7 @@ class YFinanceProvider(DataProxy):
             )
             calls = [
                 model.OptionChainDatum(
-                    type=model.OptionType.CALL,
+                    option_type=model.OptionType.CALL,
                     option_symbol=row.contractSymbol,
                     strike=row.strike,
                     bid=row.bid,
@@ -308,7 +308,7 @@ class YFinanceProvider(DataProxy):
             ]
             puts = [
                 model.OptionChainDatum(
-                    type=model.OptionType.PUT,
+                    option_type=model.OptionType.PUT,
                     option_symbol=row.contractSymbol,
                     strike=row.strike,
                     bid=row.bid,

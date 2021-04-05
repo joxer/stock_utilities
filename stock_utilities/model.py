@@ -230,7 +230,7 @@ class OptionGreeks():
                 )
 
 class OptionChainDatum(OptionGreeks,metaclass=NamedTupleMetaMultiple):
-    type: OptionType
+    option_type: OptionType
     option_symbol: str
     strike: float
     current_stock_price: float
@@ -250,7 +250,7 @@ class OptionChainDatum(OptionGreeks,metaclass=NamedTupleMetaMultiple):
     def get_current_stock_price(self) -> float:
         return self.current_stock_price
     def get_type(self) -> OptionType:
-        return self.type
+        return self.option_type
     def get_implied_volatility(self) -> float:
         return self.implied_volatility
     def get_option_date(self) -> datetime.datetime:
