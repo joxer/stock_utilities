@@ -185,6 +185,7 @@ class YFinanceProvider(DataProxy):
             period=self.timedelta_period_to_str(period),
             interval=self.timedelta_interval_to_str(interval),
             proxy=self.proxy,
+            
         )
 
         earnings = self.get_ticker().get_earnings(proxy=self.proxy, as_dict=True)
@@ -193,8 +194,10 @@ class YFinanceProvider(DataProxy):
 
         stock_history_data = []
         for index, row in history.iterrows():
-
-            index = index.astimezone(pytz.timezone("UTC"))
+            try:
+                index = index.tz_localize('UTC')
+            except:
+                index = index.tz_convert('UTC')
 
             datum = model.StockHistoryDatum(
                 symbol=self.symbol,
