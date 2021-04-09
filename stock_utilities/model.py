@@ -12,12 +12,6 @@ import py_vollib.black_scholes.greeks.analytical as vollib_a
 
 from . import exceptions
 
-class NamedTupleMetaMultiple(typing.NamedTupleMeta):
-
-    def __new__(cls, typename, bases, ns):
-        cls_obj = super().__new__(cls, typename+'_nm_base', bases, ns)
-        bases = bases + (cls_obj,)
-        return type(typename, bases, {})
 
 class OptionType(enum.Enum):
     UNDEFINED = 0
@@ -228,8 +222,8 @@ class OptionGreeks():
                     * contract_size
                     * position
                 )
-
-class OptionChainDatum(OptionGreeks,metaclass=NamedTupleMetaMultiple):
+@dataclasses.dataclass
+class OptionChainDatum(OptionGreeks):
     option_type: OptionType
     option_symbol: str
     strike: float
@@ -255,7 +249,6 @@ class OptionChainDatum(OptionGreeks,metaclass=NamedTupleMetaMultiple):
         return self.implied_volatility
     def get_option_date(self) -> datetime.datetime:
         return self.option_date
-
 
 
 class OptionChain(typing.NamedTuple):
